@@ -49,19 +49,18 @@ class SearchView extends SearchDelegate<Note> {
             .map((e) => Note.fromMap(e.data(), e.id))
             .toList();
         notes.removeWhere((element) => !element.title.contains(query));
-        print(notes.first.id);
         return ListView(
           children: notes
               .map(
                 (e) => ListTile(
                   title: Text(e.title),
                   onTap: () {
-                    close(context, null);
+                    close(context, Note());
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (BuildContext context) {
                           return NoteDetailPage(
-                            noteId: e.id,
+                            currentNote: e,
                           );
                         },
                       ),

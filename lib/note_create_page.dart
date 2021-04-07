@@ -1,7 +1,18 @@
+import 'dart:collection';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:main_flutter_app/main.dart';
+import 'package:main_flutter_app/models/note.dart';
+import 'package:main_flutter_app/note_detail_detail.dart';
 
 class NoteCreatePage extends StatelessWidget {
+  final FirebaseFirestore fireStore = FirebaseFirestore.instance;
+
   final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController textControllerTitle = TextEditingController();
+  final TextEditingController textControllerContent = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -10,55 +21,63 @@ class NoteCreatePage extends StatelessWidget {
         leading: IconButton(
             icon: Icon(Icons.close), onPressed: () => Navigator.pop(context)),
         title: Text('新規ノート'),
+        actions: [
+          ElevatedButton(
+            child: Icon(Icons.save),
+            onPressed: () {
+              Map<String, Object> newNote = new Map();
+              newNote['title'] = textControllerTitle.value.text;
+              newNote['content'] = textControllerContent.value.text;
+              fireStore
+                  .collection('notes')
+                  .add(newNote)
+                  .then((value) => {
+                        Navigator.of(context).push(
+                            MaterialPageRoute(builder: (BuildContext context) {
+                          Note newNote;
+                          fireStore
+                              .collection('notes')
+                              .doc(value.id)
+                              .get()
+                              .then((value) => newNote =
+                                  Note.fromMap(value.data(), value.id));
+                          return NoteDetailPage(
+                            currentNote: newNote,
+                          );
+                        }))
+                      })
+                  .catchError((error) =>
+                      {print('add note failure, error: ${error.toString()}')});
+            },
+          ),
+        ],
       ),
-      backgroundColor: Colors.blue,
+      backgroundColor: Colors.white,
       body: Form(
         key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: ListView(
           children: [
-            Padding(
-              padding:
-                  EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 24),
-              child: TextFormField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintStyle: TextStyle(fontSize: 16, color: Colors.white),
-                  labelStyle: TextStyle(fontSize: 16, color: Colors.white),
-                  filled: true,
-                  fillColor: Colors.lightBlueAccent,
-                  labelText: 'タイトル',
-                  hintText: 'タイトルを入力してください。',
-                ),
+            TextFormField(
+              decoration: InputDecoration(
+                hintStyle: TextStyle(fontSize: 16),
+                labelStyle: TextStyle(fontSize: 16),
+                fillColor: Colors.white,
+                filled: true,
+                hintText: 'タイトル',
               ),
+              controller: textControllerTitle,
             ),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.only(left: 8, top: 32, right: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(32),
-                    topLeft: Radius.circular(32),
-                  ),
-                ),
-                child: Padding(
-                  padding:
-                  EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 24),
-                  child: TextFormField(
-                    minLines: 5,
-                    maxLines: 20,
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'タイトルを入力してください。',
-                    ),
-                  ),
-                ),
-              ),
-            )
+            TextFormField(
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              decoration: InputDecoration(
+                  hintStyle: TextStyle(fontSize: 16),
+                  filled: true,
+                  fillColor: Colors.white,
+                  hintText: '内容',
+                  border: InputBorder.none),
+              controller: textControllerContent,
+            ),
           ],
         ),
       ),
