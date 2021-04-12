@@ -47,3 +47,4 @@ app.*.map.json
 /android/app/google-services.json
 /id_rsa.pub
 /id_rsa
+/web/index.html
