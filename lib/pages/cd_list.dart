@@ -20,13 +20,7 @@ class CDListPageState extends State<CDListPage> {
       bodyWidget: ListView(
         children: getCDData()
             .map((e) => CDCard(
-                  cdJacketId: e.id,
-                  cdJacketUrl: e.jacketImageUrl,
-                  isLocalImage: e.isLocalImage,
-                  title: e.title,
-                  cdType: e.type,
-                  description: e.description,
-                  releaseDate: e.releaseDate.toString(),
+          objCD: e,
                 ))
             .toList(),
       ),
@@ -45,23 +39,9 @@ class CDListPageState extends State<CDListPage> {
 }
 
 class CDCard extends StatelessWidget {
-  final String cdJacketId;
-  final String cdJacketUrl;
-  final bool isLocalImage;
-  final String title;
-  final String cdType;
-  final String description;
-  final String releaseDate;
+  final CD objCD;
 
-  CDCard({
-    this.cdJacketId,
-    this.cdJacketUrl,
-    this.isLocalImage,
-    this.title,
-    this.cdType,
-    this.description,
-    this.releaseDate,
-  });
+  CDCard({this.objCD});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +51,8 @@ class CDCard extends StatelessWidget {
           MaterialPageRoute(
             builder: (BuildContext context) {
               return CDDetailPage(
-                jacketImageId: cdJacketId,
+                jacketImageId: objCD.id,
+                objCD: objCD,
               );
             },
           ),
@@ -83,10 +64,10 @@ class CDCard extends StatelessWidget {
         child: Row(
           children: [
             Hero(
-              tag: 'cd_jacket_image_$cdJacketId',
-              child: isLocalImage
-                  ? Image.asset(cdJacketUrl, width: 200, height: 200)
-                  : Image.network(cdJacketUrl, width: 200, height: 200),
+              tag: 'cd_jacket_image_${objCD.id}',
+              child: objCD.isLocalImage
+                  ? Image.asset(objCD.jacketImageUrl, width: 200, height: 200)
+                  : Image.network(objCD.jacketImageUrl, width: 200, height: 200),
             ),
             Expanded(
               child: Padding(
@@ -96,12 +77,12 @@ class CDCard extends StatelessWidget {
                   child: Column(
                     children: [
                       Align(
-                          alignment: Alignment.centerLeft, child: Text(title)),
+                          alignment: Alignment.centerLeft, child: Text(objCD.title)),
                       Align(
-                          alignment: Alignment.centerLeft, child: Text(cdType)),
+                          alignment: Alignment.centerLeft, child: Text(objCD.type)),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(description),
+                        child: Text(objCD.description),
                       ),
                     ],
                   ),
