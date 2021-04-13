@@ -112,7 +112,23 @@ class TabBarViewCDTrackListView extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(left: 8.0, right: 8.0),
       child: ListView(
-        children: ['track1', 'track2', 'track3'].map((e) => ListTile(title: Text(e),)).toList(),
+        children: objCD.musics
+            .map(
+              (e) => ListTile(
+                leading: Text("${e.trackNum.toString().padLeft(2, '0')}."),
+                title: Text(e.title),
+                subtitle: Text(e.artistName),
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return musicDetailSheet();
+                    },
+                  );
+                },
+              ),
+            )
+            .toList(),
       ),
     );
   }
@@ -142,3 +158,16 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
       false;
 }
+
+Widget musicDetailSheet() => DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.7,
+      builder: (BuildContext context, ScrollController controller) {
+        return SingleChildScrollView(
+          controller: controller,
+          child: Column(
+            children: [],
+          ),
+        );
+      },
+    );

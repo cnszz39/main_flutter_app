@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:main_flutter_app/common/common_scaffold.dart';
 import 'package:main_flutter_app/models/cd.dart';
+import 'package:main_flutter_app/models/music.dart';
 import 'package:main_flutter_app/pages/cd_detail.dart';
 
 class CDListPage extends StatefulWidget {
@@ -19,9 +20,10 @@ class CDListPageState extends State<CDListPage> {
       strTitle: 'CDリスト',
       bodyWidget: ListView(
         children: getCDData()
-            .map((e) => CDCard(
-          objCD: e,
-                ))
+            .map((e) =>
+            CDCard(
+              objCD: e,
+            ))
             .toList(),
       ),
       appBarActions: [
@@ -67,7 +69,8 @@ class CDCard extends StatelessWidget {
               tag: 'cd_jacket_image_${objCD.id}',
               child: objCD.isLocalImage
                   ? Image.asset(objCD.jacketImageUrl, width: 200, height: 200)
-                  : Image.network(objCD.jacketImageUrl, width: 200, height: 200),
+                  : Image.network(objCD.jacketImageUrl,
+                  width: 200, height: 200),
             ),
             Expanded(
               child: Padding(
@@ -77,9 +80,11 @@ class CDCard extends StatelessWidget {
                   child: Column(
                     children: [
                       Align(
-                          alignment: Alignment.centerLeft, child: Text(objCD.title)),
+                          alignment: Alignment.centerLeft,
+                          child: Text(objCD.title)),
                       Align(
-                          alignment: Alignment.centerLeft, child: Text(objCD.type)),
+                          alignment: Alignment.centerLeft,
+                          child: Text(objCD.type)),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(objCD.description),
@@ -114,6 +119,108 @@ List<CD> getCDData() {
       type: 'サウンドコレクション',
       description: '詳細',
       releaseDate: DateTime.now(),
+      musics: [
+        Music(
+          trackNum: 1,
+          title: 'No Limit RED Force',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 2,
+          title: 'Sparkle',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 3,
+          title: 'Last Kingdom',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 4,
+          title: 'Vibes 2k20',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 5,
+          title: 'R\'N\'R Monsta',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 6,
+          title: 'Ai Drew',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 7,
+          title: 'DAWNBREAKER',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 8,
+          title: 'アマツカミ',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 9,
+          title: 'Galaxy Blaster',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 10,
+          title: 'Trinity Departure',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 11,
+          title: 'AstrøNotes.',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 12,
+          title: 'Singularity',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 13,
+          title: '脳天直撃',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 14,
+          title: 'No Limit RED Force（Game Size）',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 15,
+          title: 'No Limit RED Force - 星咲あかりソロver. -',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 16,
+          title: 'No Limit RED Force - 藍原 椿ソロver. -',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 17,
+          title: 'No Limit RED Force - 早乙女彩華ソロver. -',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 18,
+          title: 'No Limit RED Force - 柏木咲姫ソロver. -',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 19,
+          title: 'No Limit RED Force - 柏木美亜ソロver. -',
+          artistName: '',
+        ),
+        Music(
+          trackNum: 20,
+          title: 'No Limit RED Force（instrumental）',
+          artistName: '',
+        ),
+      ],
     ));
   }
   return dataList;

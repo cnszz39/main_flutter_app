@@ -1,4 +1,5 @@
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:main_flutter_app/models/music.dart';
 
 class CD {
   String id;
@@ -8,6 +9,7 @@ class CD {
   String description;
   bool isLocalImage;
   DateTime releaseDate;
+  List<Music> musics;
 
   CD({
     this.id,
@@ -17,6 +19,7 @@ class CD {
     this.description,
     this.isLocalImage = true,
     this.releaseDate,
+    this.musics
   });
 
   CD.fromMap(Map<String, dynamic> map, String id, Reference jacketImageReference) {
