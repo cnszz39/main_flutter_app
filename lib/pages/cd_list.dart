@@ -6,6 +6,9 @@ import 'package:main_flutter_app/common/common_scaffold.dart';
 import 'package:main_flutter_app/models/cd.dart';
 import 'package:main_flutter_app/models/music.dart';
 import 'package:main_flutter_app/pages/cd_detail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<SharedPreferences> prefs;
 
 class CDListPage extends StatefulWidget {
   bool isListView = true;
@@ -15,23 +18,47 @@ class CDListPage extends StatefulWidget {
 
 class CDListPageState extends State<CDListPage> {
   @override
+  void initState() {
+    super.initState();
+
+    prefs = SharedPreferences.getInstance();
+    prefs.then((value)  {
+      if (value.getBool('cd_list_page_is_list') != null) {
+        setState(() {
+          widget.isListView = value.getBool('cd_list_page_is_list');
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    List<CD> cdData = getCDData();
     return CommonScaffold(
       strTitle: 'CDリスト',
-      bodyWidget: ListView(
-        children: getCDData()
-            .map((e) =>
-            CDCard(
-              objCD: e,
-            ))
-            .toList(),
-      ),
+      bodyWidget: widget.isListView
+          ? ListView(
+              children: cdData.map((e) => CDCardList(objCD: e)).toList(),
+            )
+          : GridView.count(
+              crossAxisCount: 2,
+              childAspectRatio: 0.8,
+              children: cdData.map((e) => CDCardGrid(objCD: e)).toList(),
+            ),
       appBarActions: [
         IconButton(
           icon: Icon(widget.isListView ? Icons.grid_on : Icons.list),
           onPressed: () {
             setState(() {
               widget.isListView = !widget.isListView;
+              prefs.then((value) => {
+                value.setBool('cd_list_page_is_list', widget.isListView)
+              });
             });
           },
         )
@@ -40,10 +67,10 @@ class CDListPageState extends State<CDListPage> {
   }
 }
 
-class CDCard extends StatelessWidget {
+class CDCardList extends StatelessWidget {
   final CD objCD;
 
-  CDCard({this.objCD});
+  CDCardList({this.objCD});
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +97,7 @@ class CDCard extends StatelessWidget {
               child: objCD.isLocalImage
                   ? Image.asset(objCD.jacketImageUrl, width: 200, height: 200)
                   : Image.network(objCD.jacketImageUrl,
-                  width: 200, height: 200),
+                      width: 200, height: 200),
             ),
             Expanded(
               child: Padding(
@@ -94,6 +121,46 @@ class CDCard extends StatelessWidget {
                 ),
               ),
             )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CDCardGrid extends StatelessWidget {
+  final CD objCD;
+
+  CDCardGrid({this.objCD});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return CDDetailPage(
+                jacketImageId: objCD.id,
+                objCD: objCD,
+              );
+            },
+          ),
+        );
+      },
+      child: Card(
+        margin: EdgeInsets.all(4.0),
+        shape: BeveledRectangleBorder(),
+        child: Column(
+          children: [
+            Hero(
+              tag: 'cd_jacket_image_${objCD.id}',
+              child: objCD.isLocalImage
+                  ? Image.asset(objCD.jacketImageUrl, width: 180, height: 180)
+                  : Image.network(objCD.jacketImageUrl,
+                      width: 180, height: 180),
+            ),
+            Align(alignment: Alignment.centerLeft, child: Text(objCD.title,  style: TextStyle(fontSize: 16.0),)),
           ],
         ),
       ),

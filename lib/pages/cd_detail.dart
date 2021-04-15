@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:main_flutter_app/models/cd.dart';
 
-class CDDetailPage extends StatelessWidget {
+class CDDetailPage extends StatefulWidget {
   final String jacketImageId;
   final CD objCD;
+  bool isFavorite;
 
-  CDDetailPage({this.jacketImageId, this.objCD});
+  CDDetailPage({this.jacketImageId, this.objCD, this.isFavorite = false});
 
+  CDDetailPageState createState() => new CDDetailPageState();
+}
+
+class CDDetailPageState extends State<CDDetailPage> {
   List<String> strTabBarNames = ['詳細', 'トラック'];
 
   @override
@@ -27,7 +32,7 @@ class CDDetailPage extends StatelessWidget {
                 flexibleSpace: FlexibleSpaceBar(
                   title: Text('CD Title'),
                   background: Hero(
-                      tag: 'cd_jacket_image_$jacketImageId',
+                      tag: 'cd_jacket_image_${widget.jacketImageId}',
                       child: Image.asset(
                         'images/jacket_sc_0004.jpg',
                         fit: BoxFit.cover,
@@ -48,10 +53,18 @@ class CDDetailPage extends StatelessWidget {
             ];
           },
           body: TabBarView(children: [
-            TabBarViewCDDetailPage(objCD: objCD),
-            TabBarViewCDTrackListView(objCD: objCD),
+            TabBarViewCDDetailPage(objCD: widget.objCD),
+            TabBarViewCDTrackListView(objCD: widget.objCD),
           ]),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(widget.isFavorite ? Icons.favorite : Icons.favorite_border),
+        onPressed: () {
+          setState(() {
+            widget.isFavorite = !widget.isFavorite;
+          });
+        },
       ),
     );
   }
