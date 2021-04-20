@@ -1,8 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:main_flutter_app/common/common_scaffold.dart';
 import 'package:main_flutter_app/models/cd.dart';
 import 'package:main_flutter_app/models/music.dart';
 import 'package:main_flutter_app/pages/cd_detail.dart';
@@ -39,30 +35,33 @@ class CDListPageState extends State<CDListPage> {
   @override
   Widget build(BuildContext context) {
     List<CD> cdData = getCDData();
-    return CommonScaffold(
-      strTitle: 'CDリスト',
-      bodyWidget: widget.isListView
-          ? ListView(
-              children: cdData.map((e) => CDCardList(objCD: e)).toList(),
-            )
-          : GridView.count(
-              crossAxisCount: 2,
-              childAspectRatio: 0.8,
-              children: cdData.map((e) => CDCardGrid(objCD: e)).toList(),
-            ),
-      appBarActions: [
-        IconButton(
-          icon: Icon(widget.isListView ? Icons.grid_on : Icons.list),
-          onPressed: () {
-            setState(() {
-              widget.isListView = !widget.isListView;
-              prefs.then((value) => {
-                value.setBool('cd_list_page_is_list', widget.isListView)
-              });
-            });
-          },
-        )
-      ],
+    // return scaffold(
+    //   strTitle: 'CDリスト',
+    //   bodyWidget: widget.isListView
+    //       ? ListView(
+    //           children: cdData.map((e) => CDCardList(objCD: e)).toList(),
+    //         )
+    //       : GridView.count(
+    //           crossAxisCount: 2,
+    //           childAspectRatio: 0.8,
+    //           children: cdData.map((e) => CDCardGrid(objCD: e)).toList(),
+    //         ),
+    //   appBarActions: [
+    //     IconButton(
+    //       icon: Icon(widget.isListView ? Icons.grid_on : Icons.list),
+    //       onPressed: () {
+    //         setState(() {
+    //           widget.isListView = !widget.isListView;
+    //           prefs.then((value) => {
+    //             value.setBool('cd_list_page_is_list', widget.isListView)
+    //           });
+    //         });
+    //       },
+    //     )
+    //   ],
+    // );
+    return ListView(
+      children: cdData.map((e) => CDCardList(objCD: e)).toList(),
     );
   }
 }

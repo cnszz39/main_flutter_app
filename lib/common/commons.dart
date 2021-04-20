@@ -5,8 +5,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:main_flutter_app/pages/cd_list.dart';
 import 'package:main_flutter_app/pages/note_list.dart';
 
-import 'note_create_page.dart';
-import 'search_view.dart';
+import '../note_create_page.dart';
+import '../search_view.dart';
 
 class CommonScaffold extends StatefulWidget {
   final Widget scaffoldBody;
@@ -93,3 +93,17 @@ class _CommonScaffoldState extends State<CommonScaffold> {
     );
   }
 }
+
+List<Map<String, dynamic>> getMainPageConfig() => [
+  {
+    'pageIndex': 0,
+    'pageName': 'ノート',
+    'pageWidget': NoteListPage(),
+    'appBarActions': [],
+  },
+  {
+    'pageIndex': 1,
+    'pageName': 'CD',
+    'pageWidget': CDListPage(),
+  },
+];
