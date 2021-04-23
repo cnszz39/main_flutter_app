@@ -18,7 +18,6 @@ class CommonScaffold extends StatefulWidget {
 }
 
 class _CommonScaffoldState extends State<CommonScaffold> {
-
   @override
   void initState() {
     super.initState();
@@ -95,15 +94,18 @@ class _CommonScaffoldState extends State<CommonScaffold> {
 }
 
 List<Map<String, dynamic>> getMainPageConfig() => [
-  {
-    'pageIndex': 0,
-    'pageName': 'ノート',
-    'pageWidget': NoteListPage(),
-    'appBarActions': [],
-  },
-  {
-    'pageIndex': 1,
-    'pageName': 'CD',
-    'pageWidget': CDListPage(),
-  },
-];
+      {
+        'pageIndex': 0,
+        'pageName': 'ノート',
+        'pageIcon': Icons.note,
+        'pageWidget': NoteListPage(),
+        'appBarActions': [],
+      },
+      {
+        'pageIndex': 1,
+        'pageName': 'CD',
+        'pageIcon': Icons.library_music,
+        'pageWidget': CDListPage(),
+        'appBarActions': [],
+      },
+    ];

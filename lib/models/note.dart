@@ -7,11 +7,9 @@ class Note {
   String content;
   List<NoteTag> tags;
 
-  Note({ this.id,  this.title,  this.content, this.tags});
+  Note({this.id, this.title, this.content, this.tags});
 
   Note.fromMap(Map<String, dynamic> map, String id) {
-    print(map.toString());
-
     // List<DocumentReference> currentTagReferences = map['tags'];
     // currentTagReferences.map((e) => {
     //   e.get().then((value) => {

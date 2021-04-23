@@ -18,7 +18,7 @@ class CDListPageState extends State<CDListPage> {
     super.initState();
 
     prefs = SharedPreferences.getInstance();
-    prefs.then((value)  {
+    prefs.then((value) {
       if (value.getBool('cd_list_page_is_list') != null) {
         setState(() {
           widget.isListView = value.getBool('cd_list_page_is_list');
@@ -159,7 +159,12 @@ class CDCardGrid extends StatelessWidget {
                   : Image.network(objCD.jacketImageUrl,
                       width: 180, height: 180),
             ),
-            Align(alignment: Alignment.centerLeft, child: Text(objCD.title,  style: TextStyle(fontSize: 16.0),)),
+            Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  objCD.title,
+                  style: TextStyle(fontSize: 16.0),
+                )),
           ],
         ),
       ),
@@ -335,3 +340,5 @@ List<CD> getCDData() {
 //     );
 //   }
 // }
+
+List<Widget> listCdListAppBarActions() => [];

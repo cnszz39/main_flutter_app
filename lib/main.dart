@@ -21,7 +21,8 @@ Future<void> main() async {
 
 class MyApp extends StatefulWidget {
   int pageIndex = 0;
-
+  bool isOpenDrawer = false;
+  bool isNavigationRailExtended = true;
   MyAppState createState() => new MyAppState();
 }
 
@@ -30,12 +31,9 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     firestore = FirebaseFirestore.instance;
     firebaseAuth = FirebaseAuth.instance;
-    firebaseAuth.signInAnonymously();
-
-    // Future<QuerySnapshot> notes = Note().getNotes(firestore);
+    // firebaseAuth.signInAnonymously();
 
     List<Map<String, dynamic>> mainPages = getMainPageConfig();
-    List<Widget> drawerMenuItems = [];
     PageController _pageController =
         new PageController(initialPage: widget.pageIndex);
     return MaterialApp(
@@ -46,8 +44,22 @@ class MyAppState extends State<MyApp> {
       ),
       home: Builder(
         builder: (context) {
+          Size deviceSize = MediaQuery.of(context).size;
+          bool isMobileDevice = deviceSize.width <= 600;
+
           return Scaffold(
             appBar: AppBar(
+              leading: isMobileDevice
+                  ? null
+                  : IconButton(
+                      icon: Icon(Icons.menu),
+                      onPressed: () {
+                        setState(() {
+                          widget.isNavigationRailExtended =
+                              !widget.isNavigationRailExtended;
+                        });
+                      },
+                    ),
               title: Text(mainPages[widget.pageIndex]['pageName'] as String),
               actions: [
                 IconButton(
@@ -61,32 +73,66 @@ class MyAppState extends State<MyApp> {
                 )
               ],
             ),
-            drawer: Drawer(
-              child: ListView(
-                children: mainPages
-                    .map(
-                      (e) => ListTile(
-                        title: Text(e['pageName'].toString()),
-                        onTap: () {
-                          setState(
-                            () {
-                              widget.pageIndex = e['pageIndex'];
-                              _pageController.jumpToPage(e['pageIndex']);
-                              Navigator.pop(context);
-                            },
-                          );
-                        },
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
+            drawer: isMobileDevice
+                ? Drawer(
+                    child: ListView(
+                      children: mainPages
+                          .map(
+                            (e) => ListTile(
+                              title: Text(e['pageName'].toString()),
+                              onTap: () {
+                                setState(
+                                  () {
+                                    widget.pageIndex = e['pageIndex'];
+                                    _pageController.jumpToPage(e['pageIndex']);
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              },
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  )
+                : null,
             backgroundColor: Colors.white,
-            body: PageView(
-              controller: _pageController,
-              children:
-                  mainPages.map((e) => e['pageWidget'] as Widget).toList(),
-            ),
+            body: isMobileDevice
+                ? PageView(
+                    controller: _pageController,
+                    children: mainPages
+                        .map((e) => e['pageWidget'] as Widget)
+                        .toList(),
+                  )
+                : Row(
+                    children: [
+                      NavigationRail(
+                        extended: widget.isNavigationRailExtended,
+                        destinations: mainPages
+                            .map(
+                              (e) => NavigationRailDestination(
+                                icon: Icon(e['pageIcon'] as IconData),
+                                label: Text(e['pageName'] as String),
+                              ),
+                            )
+                            .toList(),
+                        onDestinationSelected: (int index) {
+                          setState(() {
+                            widget.pageIndex = index;
+                            _pageController.jumpToPage(index);
+                          });
+                        },
+                        selectedIndex: 0,
+                      ),
+                      Expanded(
+                        child: PageView(
+                          controller: _pageController,
+                          children: mainPages
+                              .map((e) => e['pageWidget'] as Widget)
+                              .toList(),
+                        ),
+                      ),
+                    ],
+                  ),
           );
         },
       ),
