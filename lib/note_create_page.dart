@@ -40,6 +40,7 @@ class NoteCreatePage extends StatelessWidget {
                                   Note.fromMap(value.data(), value.id));
                           return NoteDetailPage(
                             currentNote: newNote,
+                            isMobileDevice: false,
                           );
                         }))
                       })

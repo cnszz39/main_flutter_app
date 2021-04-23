@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:main_flutter_app/pages/cd_list.dart';
 import 'package:main_flutter_app/pages/note_list.dart';
+import 'package:main_flutter_app/pages/setting_page.dart';
 
 import '../note_create_page.dart';
 import '../search_view.dart';
@@ -104,6 +105,13 @@ List<Map<String, dynamic>> getMainPageConfig(BuildContext context) => [
         'pageName': 'CD',
         'pageIcon': Icons.library_music,
         'pageWidget': CDListPage(),
+        'appBarActions': [],
+      },
+      {
+        'pageIndex': 2,
+        'pageName': '設定',
+        'pageIcon': Icons.settings,
+        'pageWidget': SettingPage(),
         'appBarActions': [],
       },
     ];

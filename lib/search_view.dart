@@ -61,6 +61,7 @@ class SearchView extends SearchDelegate<Note> {
                         builder: (BuildContext context) {
                           return NoteDetailPage(
                             currentNote: e,
+                            isMobileDevice: false,
                           );
                         },
                       ),

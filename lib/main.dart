@@ -43,6 +43,24 @@ class MyAppState extends State<MyApp> {
           Size deviceSize = MediaQuery.of(context).size;
           bool isMobileDevice = deviceSize.width <= 600;
 
+          List<Widget> drawerItems = [createDrawerHeader()];
+          drawerItems.addAll(mainPages
+              .map(
+                (e) => ListTile(
+                  title: Text(e['pageName'].toString()),
+                  onTap: () {
+                    setState(
+                      () {
+                        widget.pageIndex = e['pageIndex'];
+                        _pageController.jumpToPage(e['pageIndex']);
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+              )
+              .toList());
+
           return Scaffold(
             appBar: AppBar(
               leading: isMobileDevice
@@ -72,22 +90,7 @@ class MyAppState extends State<MyApp> {
             drawer: isMobileDevice
                 ? Drawer(
                     child: ListView(
-                      children: mainPages
-                          .map(
-                            (e) => ListTile(
-                              title: Text(e['pageName'].toString()),
-                              onTap: () {
-                                setState(
-                                  () {
-                                    widget.pageIndex = e['pageIndex'];
-                                    _pageController.jumpToPage(e['pageIndex']);
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            ),
-                          )
-                          .toList(),
+                      children: drawerItems,
                     ),
                   )
                 : null,
@@ -102,7 +105,9 @@ class MyAppState extends State<MyApp> {
                 : Row(
                     children: [
                       NavigationRail(
+                        leading: createDrawerHeader(),
                         extended: widget.isNavigationRailExtended,
+                        elevation: 2.0,
                         destinations: mainPages
                             .map(
                               (e) => NavigationRailDestination(
@@ -135,3 +140,10 @@ class MyAppState extends State<MyApp> {
     );
   }
 }
+
+DrawerHeader createDrawerHeader() => DrawerHeader(
+      child: IconButton(
+        icon: Icon(Icons.person),
+        onPressed: () {},
+      ),
+    );
