@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:main_flutter_app/pages/cd_list.dart';
 import 'package:main_flutter_app/pages/note_list.dart';
 
@@ -93,7 +91,7 @@ class _CommonScaffoldState extends State<CommonScaffold> {
   }
 }
 
-List<Map<String, dynamic>> getMainPageConfig() => [
+List<Map<String, dynamic>> getMainPageConfig(BuildContext context) => [
       {
         'pageIndex': 0,
         'pageName': 'ノート',

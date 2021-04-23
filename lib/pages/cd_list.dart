@@ -60,8 +60,12 @@ class CDListPageState extends State<CDListPage> {
     //     )
     //   ],
     // );
-    return ListView(
-      children: cdData.map((e) => CDCardList(objCD: e)).toList(),
+    return AnimatedList(
+      initialItemCount: cdData.length,
+      itemBuilder:
+          (BuildContext context, int index, Animation<double> animation) {
+        return CDCardList(objCD: cdData[index]);
+      },
     );
   }
 }

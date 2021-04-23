@@ -2,10 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:main_flutter_app/models/note.dart';
-import 'package:main_flutter_app/note_create_page.dart';
-import 'package:main_flutter_app/pages/cd_list.dart';
-import 'package:main_flutter_app/pages/note_list.dart';
 import 'package:main_flutter_app/search_view.dart';
 
 import 'common/commons.dart';
@@ -33,7 +29,7 @@ class MyAppState extends State<MyApp> {
     firebaseAuth = FirebaseAuth.instance;
     // firebaseAuth.signInAnonymously();
 
-    List<Map<String, dynamic>> mainPages = getMainPageConfig();
+    List<Map<String, dynamic>> mainPages = getMainPageConfig(context);
     PageController _pageController =
         new PageController(initialPage: widget.pageIndex);
     return MaterialApp(
@@ -121,7 +117,7 @@ class MyAppState extends State<MyApp> {
                             _pageController.jumpToPage(index);
                           });
                         },
-                        selectedIndex: 0,
+                        selectedIndex: widget.pageIndex,
                       ),
                       Expanded(
                         child: PageView(
