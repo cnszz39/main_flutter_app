@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:main_flutter_app/models/cd.dart';
-import 'package:main_flutter_app/pages/image_view_page.dart';
+import 'package:main_flutter_app/common/commons.dart';
 
 class CDDetailPage extends StatefulWidget {
   final String jacketImageId;

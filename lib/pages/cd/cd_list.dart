@@ -1,7 +1,9 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:main_flutter_app/models/cd.dart';
 import 'package:main_flutter_app/models/music.dart';
-import 'package:main_flutter_app/pages/cd_detail.dart';
+import 'package:main_flutter_app/pages/cd/cd_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<SharedPreferences> prefs;
@@ -34,6 +36,9 @@ class CDListPageState extends State<CDListPage> {
 
   @override
   Widget build(BuildContext context) {
+    Size deviceSize = MediaQuery.of(context).size;
+    bool isMobileDevice = deviceSize.width <= 600;
+
     List<CD> cdData = getCDData();
     // return scaffold(
     //   strTitle: 'CDリスト',
@@ -60,12 +65,104 @@ class CDListPageState extends State<CDListPage> {
     //     )
     //   ],
     // );
-    return AnimatedList(
-      initialItemCount: cdData.length,
-      itemBuilder:
-          (BuildContext context, int index, Animation<double> animation) {
-        return CDCardList(objCD: cdData[index]);
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return Column(
+          children: [
+            FilterBar(),
+            Expanded(
+              child: isMobileDevice
+                  ? AnimatedList(
+                      initialItemCount: cdData.length,
+                      itemBuilder: (BuildContext context, int index,
+                          Animation<double> animation) {
+                        return CDCardList(objCD: cdData[index]);
+                      },
+                    )
+                  : GridView.count(
+                      crossAxisCount: constraints.maxWidth ~/ 200,
+                      children: cdData
+                          .map(
+                            (objCD) => Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: GridTile(
+                                child: Hero(
+                                  tag: 'cd_jacket_image_${objCD.id}',
+                                  child: objCD.isLocalImage
+                                      ? Image.asset(objCD.jacketImageUrl,
+                                          width: 180, height: 180)
+                                      : Image.network(objCD.jacketImageUrl,
+                                          width: 180, height: 180),
+                                ),
+                                footer: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                      colors: [
+                                        Colors.grey.withOpacity(0.9),
+                                        Colors.white.withOpacity(0.4),
+                                      ],
+                                    ),
+                                  ),
+                                  child: Text(
+                                    objCD.title,
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+            )
+          ],
+        );
       },
+    );
+  }
+}
+
+class FilterBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 36.0,
+      child: Material(
+        type: MaterialType.card,
+        color: Colors.white,
+        elevation: 1.0,
+        child: Container(
+          margin: EdgeInsets.only(left: 8.0, right: 8.0, top: 2.0, bottom: 2.0),
+          child: Row(
+            children: [
+              DropdownButton(
+                hint: Text('タイプ'),
+                onChanged: (dynamic value) {
+                  print(value);
+                },
+                items: [
+                  DropdownMenuItem(
+                      child: Text('サウンドトラック'), value: 'soundTrack'),
+                  DropdownMenuItem(child: Text('ベストアルバム'), value: 'best'),
+                  DropdownMenuItem(child: Text('キャラソング'), value: 'charactor'),
+                ],
+              ),
+              DropdownButton(
+                hint: Text('ソート順'),
+                onChanged: (dynamic value) {
+                  print(value);
+                },
+                items: [
+                  DropdownMenuItem(child: Text('デフォルト'), value: 'default'),
+                  DropdownMenuItem(child: Text('リリース日'), value: 'releaseDate'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

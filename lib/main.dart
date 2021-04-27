@@ -2,32 +2,45 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:main_flutter_app/search_view.dart';
+import 'package:main_flutter_app/pages/search_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'common/commons.dart';
 
 FirebaseFirestore firestore;
 FirebaseAuth firebaseAuth;
+User currentUser;
+Future<SharedPreferences> prefs;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  int pageIndex = 0;
+  int pageIndex = 2;
   bool isOpenDrawer = false;
   bool isNavigationRailExtended = true;
+
   MyAppState createState() => new MyAppState();
 }
 
 class MyAppState extends State<MyApp> {
   @override
-  Widget build(BuildContext context) {
-    firestore = FirebaseFirestore.instance;
+  void initState() {
+    super.initState();
+
     firebaseAuth = FirebaseAuth.instance;
-    // firebaseAuth.signInAnonymously();
+    firestore = FirebaseFirestore.instance;
+
+    currentUser = firebaseAuth.currentUser;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    currentUser = firebaseAuth.currentUser;
 
     List<Map<String, dynamic>> mainPages = getMainPageConfig(context);
     PageController _pageController =
@@ -43,7 +56,9 @@ class MyAppState extends State<MyApp> {
           Size deviceSize = MediaQuery.of(context).size;
           bool isMobileDevice = deviceSize.width <= 600;
 
-          List<Widget> drawerItems = [createDrawerHeader()];
+          List<Widget> drawerItems = [
+            createDrawerHeader(context, this, currentUser)
+          ];
           drawerItems.addAll(mainPages
               .map(
                 (e) => ListTile(
@@ -105,9 +120,10 @@ class MyAppState extends State<MyApp> {
                 : Row(
                     children: [
                       NavigationRail(
-                        leading: createDrawerHeader(),
+                        leading: createDrawerHeader(context, this, currentUser),
+                        backgroundColor: Colors.grey[50],
                         extended: widget.isNavigationRailExtended,
-                        elevation: 2.0,
+                        elevation: 3.0,
                         destinations: mainPages
                             .map(
                               (e) => NavigationRailDestination(
@@ -126,6 +142,7 @@ class MyAppState extends State<MyApp> {
                       ),
                       Expanded(
                         child: PageView(
+                          physics: NeverScrollableScrollPhysics(),
                           controller: _pageController,
                           children: mainPages
                               .map((e) => e['pageWidget'] as Widget)
@@ -141,9 +158,51 @@ class MyAppState extends State<MyApp> {
   }
 }
 
-DrawerHeader createDrawerHeader() => DrawerHeader(
-      child: IconButton(
-        icon: Icon(Icons.person),
-        onPressed: () {},
-      ),
-    );
+DrawerHeader createDrawerHeader(
+  BuildContext context,
+  MyAppState parent,
+  User currentUser,
+) {
+  return DrawerHeader(
+    child: Stack(
+      children: [
+        Align(
+          alignment: Alignment.topLeft,
+          child: currentUser != null
+              ? Image.network(currentUser.photoURL)
+              : IconButton(
+                  icon: Icon(Icons.person),
+                  onPressed: () {
+                    showLoginDialog(context);
+                  }),
+        ),
+      ],
+    ),
+  );
+}
+
+void showLoginDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return SimpleDialog(
+        title: Text('ログイン'),
+        children: [
+          ElevatedButton(
+              onPressed: () {
+                GoogleAuthProvider googleAuthProvider =
+                    new GoogleAuthProvider();
+                googleAuthProvider.addScope(
+                    'https://www.googleapis.com/auth/contacts.readonly');
+                firebaseAuth
+                    .signInWithPopup(googleAuthProvider)
+                    .then((value) => {print(value.toString())})
+                    .onError((error, stackTrace) =>
+                        {print('Login error, ${error.toString()}')});
+              },
+              child: Text('login')),
+        ],
+      );
+    },
+  );
+}
