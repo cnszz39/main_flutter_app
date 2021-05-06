@@ -35,7 +35,7 @@ class MyAppState extends State<MyApp> {
     firebaseAuth = FirebaseAuth.instance;
     firestore = FirebaseFirestore.instance;
 
-    currentUser = firebaseAuth.currentUser;
+    // currentUser = firebaseAuth.currentUser;
   }
 
   @override

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:main_flutter_app/models/note_tag.dart';
+import 'package:main_flutter_app/models/note/note_tag.dart';
 
 class Note {
   String id;

@@ -1,8 +1,8 @@
 import 'dart:html';
 
 import 'package:flutter/material.dart';
-import 'package:main_flutter_app/models/cd.dart';
-import 'package:main_flutter_app/models/music.dart';
+import 'package:main_flutter_app/models/cd/cd.dart';
+import 'package:main_flutter_app/models/cd/music.dart';
 import 'package:main_flutter_app/pages/cd/cd_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

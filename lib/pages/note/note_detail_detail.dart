@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:main_flutter_app/models/note.dart';
+import 'package:main_flutter_app/models/note/note.dart';
 
 class NoteDetailPage extends StatelessWidget {
   final Note currentNote;

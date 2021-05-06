@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:main_flutter_app/models/note.dart';
+import 'package:main_flutter_app/models/note/note.dart';
 import 'note_create_page.dart';
 import 'note_detail_detail.dart';
 
