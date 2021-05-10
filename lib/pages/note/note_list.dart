@@ -4,12 +4,14 @@ import 'package:main_flutter_app/models/note/note.dart';
 import 'note_create_page.dart';
 import 'note_detail_detail.dart';
 
-FirebaseFirestore fireStore;
-
 class NoteListPage extends StatefulWidget {
   bool isOpenNoteDetail = false;
   Note currentNote = Note();
   int currentNoteIndex = 0;
+
+  final FirebaseFirestore firestore;
+  NoteListPage({this.firestore});
+
   @override
   _NoteListPageState createState() => new _NoteListPageState();
 }
@@ -19,8 +21,7 @@ class _NoteListPageState extends State<NoteListPage> {
 
   @override
   Widget build(BuildContext context) {
-    fireStore = FirebaseFirestore.instance;
-    var noteQuerySnapshot = Note().getNotes(fireStore);
+    var noteQuerySnapshot = Note().getNotes(widget.firestore);
 
     Size deviceSize = MediaQuery.of(context).size;
     bool isMobileDevice = deviceSize.width <= 600;
@@ -139,7 +140,7 @@ class _NoteListPageState extends State<NoteListPage> {
 
   Future<void> onRefreshNoteList() async {
     setState(() {
-      noteQuerySnapshot = Note().getNotes(fireStore);
+      noteQuerySnapshot = Note().getNotes(widget.firestore);
     });
   }
 }

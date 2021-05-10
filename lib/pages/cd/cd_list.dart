@@ -1,8 +1,7 @@
-import 'dart:html';
-
+// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:main_flutter_app/models/cd/cd.dart';
-import 'package:main_flutter_app/models/cd/music.dart';
 import 'package:main_flutter_app/pages/cd/cd_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,10 +10,16 @@ Future<SharedPreferences> prefs;
 class CDListPage extends StatefulWidget {
   bool isListView = true;
 
+  final FirebaseFirestore firestore;
+
+  CDListPage({this.firestore});
+
   CDListPageState createState() => new CDListPageState();
 }
 
 class CDListPageState extends State<CDListPage> {
+  Future<QuerySnapshot> cdQuerySnapshot;
+
   @override
   void initState() {
     super.initState();
@@ -39,84 +44,38 @@ class CDListPageState extends State<CDListPage> {
     Size deviceSize = MediaQuery.of(context).size;
     bool isMobileDevice = deviceSize.width <= 600;
 
-    List<CD> cdData = getCDData();
-    // return scaffold(
-    //   strTitle: 'CDリスト',
-    //   bodyWidget: widget.isListView
-    //       ? ListView(
-    //           children: cdData.map((e) => CDCardList(objCD: e)).toList(),
-    //         )
-    //       : GridView.count(
-    //           crossAxisCount: 2,
-    //           childAspectRatio: 0.8,
-    //           children: cdData.map((e) => CDCardGrid(objCD: e)).toList(),
-    //         ),
-    //   appBarActions: [
-    //     IconButton(
-    //       icon: Icon(widget.isListView ? Icons.grid_on : Icons.list),
-    //       onPressed: () {
-    //         setState(() {
-    //           widget.isListView = !widget.isListView;
-    //           prefs.then((value) => {
-    //             value.setBool('cd_list_page_is_list', widget.isListView)
-    //           });
-    //         });
-    //       },
-    //     )
-    //   ],
-    // );
+    var cdQuerySnapshot =CD().getCDData(widget.firestore);
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return Column(
           children: [
             FilterBar(),
-            Expanded(
-              child: isMobileDevice
-                  ? AnimatedList(
-                      initialItemCount: cdData.length,
-                      itemBuilder: (BuildContext context, int index,
-                          Animation<double> animation) {
-                        return CDCardList(objCD: cdData[index]);
-                      },
-                    )
-                  : GridView.count(
-                      crossAxisCount: constraints.maxWidth ~/ 200,
-                      children: cdData
-                          .map(
-                            (objCD) => Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: GridTile(
-                                child: Hero(
-                                  tag: 'cd_jacket_image_${objCD.id}',
-                                  child: objCD.isLocalImage
-                                      ? Image.asset(objCD.jacketImageUrl,
-                                          width: 180, height: 180)
-                                      : Image.network(objCD.jacketImageUrl,
-                                          width: 180, height: 180),
-                                ),
-                                footer: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [
-                                        Colors.grey.withOpacity(0.9),
-                                        Colors.white.withOpacity(0.4),
-                                      ],
-                                    ),
-                                  ),
-                                  child: Text(
-                                    objCD.title,
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 20),
-                                  ),
-                                ),
-                              ),
-                            ),
+            FutureBuilder(
+                future: cdQuerySnapshot,
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snap) {
+                  if (!snap.hasData) return Container();
+
+                  return Expanded(
+                    child: isMobileDevice
+                        ? ListView(
+                            children: snap.data.docs
+                                .map(
+                                  (objCD) => cdListViewItem(
+                                      context: context, objCD: CD.fromMap(objCD.data(), objCD.id, null)),
+                                )
+                                .toList(),
                           )
-                          .toList(),
-                    ),
-            )
+                        : GridView.count(
+                            crossAxisCount: constraints.maxWidth ~/ 200,
+                            children: snap.data.docs
+                                .map(
+                                  (objCD) => cdGridViewItem(objCD: CD.fromMap(objCD.data(), objCD.id, null)),
+                                )
+                                .toList(),
+                          ),
+                  );
+                })
           ],
         );
       },
@@ -167,14 +126,7 @@ class FilterBar extends StatelessWidget {
   }
 }
 
-class CDCardList extends StatelessWidget {
-  final CD objCD;
-
-  CDCardList({this.objCD});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
+Widget cdListViewItem({BuildContext context, CD objCD}) => GestureDetector(
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -225,8 +177,34 @@ class CDCardList extends StatelessWidget {
         ),
       ),
     );
-  }
-}
+
+Widget cdGridViewItem({CD objCD}) => Padding(
+      padding: EdgeInsets.all(8.0),
+      child: GridTile(
+        child: Hero(
+          tag: 'cd_jacket_image_${objCD.id}',
+          child: objCD.isLocalImage
+              ? Image.asset(objCD.jacketImageUrl, width: 180, height: 180)
+              : Image.network(objCD.jacketImageUrl, width: 180, height: 180),
+        ),
+        footer: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                Colors.grey.withOpacity(0.9),
+                Colors.white.withOpacity(0.4),
+              ],
+            ),
+          ),
+          child: Text(
+            objCD.title,
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+        ),
+      ),
+    );
 
 class CDCardGrid extends StatelessWidget {
   final CD objCD;
@@ -278,124 +256,6 @@ class CDGridTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridTile(child: null);
   }
-}
-
-List<CD> getCDData() {
-  // TODO Change data source to firebase
-  List<CD> dataList = [];
-  for (var i = 1; i <= 10; i++) {
-    dataList.add(new CD(
-      id: i.toString(),
-      jacketImageUrl: 'images/jacket_sc_0004.jpg',
-      title: 'No Limit RED Force',
-      type: 'サウンドコレクション',
-      description: '詳細',
-      releaseDate: DateTime.now(),
-      musics: [
-        Music(
-          trackNum: 1,
-          title: 'No Limit RED Force',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 2,
-          title: 'Sparkle',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 3,
-          title: 'Last Kingdom',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 4,
-          title: 'Vibes 2k20',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 5,
-          title: 'R\'N\'R Monsta',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 6,
-          title: 'Ai Drew',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 7,
-          title: 'DAWNBREAKER',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 8,
-          title: 'アマツカミ',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 9,
-          title: 'Galaxy Blaster',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 10,
-          title: 'Trinity Departure',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 11,
-          title: 'AstrøNotes.',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 12,
-          title: 'Singularity',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 13,
-          title: '脳天直撃',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 14,
-          title: 'No Limit RED Force（Game Size）',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 15,
-          title: 'No Limit RED Force - 星咲あかりソロver. -',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 16,
-          title: 'No Limit RED Force - 藍原 椿ソロver. -',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 17,
-          title: 'No Limit RED Force - 早乙女彩華ソロver. -',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 18,
-          title: 'No Limit RED Force - 柏木咲姫ソロver. -',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 19,
-          title: 'No Limit RED Force - 柏木美亜ソロver. -',
-          artistName: '',
-        ),
-        Music(
-          trackNum: 20,
-          title: 'No Limit RED Force（instrumental）',
-          artistName: '',
-        ),
-      ],
-    ));
-  }
-  return dataList;
 }
 
 // class CDListPage extends StatelessWidget {

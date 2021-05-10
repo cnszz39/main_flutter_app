@@ -42,7 +42,7 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     currentUser = firebaseAuth.currentUser;
 
-    List<Map<String, dynamic>> mainPages = getMainPageConfig(context);
+    List<Map<String, dynamic>> mainPages = getMainPageConfig(context, firestore);
     PageController _pageController =
         new PageController(initialPage: widget.pageIndex);
     return MaterialApp(
@@ -113,6 +113,7 @@ class MyAppState extends State<MyApp> {
             body: isMobileDevice
                 ? PageView(
                     controller: _pageController,
+                    physics: NeverScrollableScrollPhysics(),
                     children: mainPages
                         .map((e) => e['pageWidget'] as Widget)
                         .toList(),

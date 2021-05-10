@@ -113,12 +113,12 @@ class ImageViewPage extends StatelessWidget {
   }
 }
 
-List<Map<String, dynamic>> getMainPageConfig(BuildContext context) => [
+List<Map<String, dynamic>> getMainPageConfig(BuildContext context, FirebaseFirestore firestore) => [
       {
         'pageIndex': 0,
         'pageName': 'ノート',
         'pageIcon': Icons.note,
-        'pageWidget': NoteListPage(),
+        'pageWidget': NoteListPage(firestore: firestore,),
         'appBarActions': [],
       },
       {
