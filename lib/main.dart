@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:main_flutter_app/pages/search_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +10,8 @@ import 'common/commons.dart';
 
 FirebaseFirestore firestore;
 FirebaseAuth firebaseAuth;
+FirebaseStorage firebaseStorage;
+
 User currentUser;
 Future<SharedPreferences> prefs;
 
@@ -34,7 +37,7 @@ class MyAppState extends State<MyApp> {
 
     firebaseAuth = FirebaseAuth.instance;
     firestore = FirebaseFirestore.instance;
-
+    firebaseStorage = FirebaseStorage.instance;
     // currentUser = firebaseAuth.currentUser;
   }
 
@@ -42,7 +45,8 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     currentUser = firebaseAuth.currentUser;
 
-    List<Map<String, dynamic>> mainPages = getMainPageConfig(context, firestore);
+    List<Map<String, dynamic>> mainPages =
+        getMainPageConfig(context, firestore, firebaseStorage);
     PageController _pageController =
         new PageController(initialPage: widget.pageIndex);
     return MaterialApp(

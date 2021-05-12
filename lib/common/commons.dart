@@ -1,94 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:main_flutter_app/pages/all_pages.dart';
-
-import '../pages/note/note_create_page.dart';
-import '../pages/search_view.dart';
-
-class CommonScaffold extends StatefulWidget {
-  final Widget scaffoldBody;
-  final Future<QuerySnapshot> notes;
-
-  CommonScaffold({this.scaffoldBody, this.notes});
-
-  _CommonScaffoldState createState() => new _CommonScaffoldState();
-}
-
-class _CommonScaffoldState extends State<CommonScaffold> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // _handleSignIn();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('MyApp'),
-        actions: [
-          IconButton(
-            icon: Hero(
-              child: Icon(Icons.search),
-              tag: 'search_view',
-            ),
-            onPressed: () {
-              showSearch(
-                  context: context,
-                  delegate: SearchView(allSuggestions: widget.notes));
-            },
-          ),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              child: Text('Drawer Header'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-            ),
-            ListTile(
-              title: GestureDetector(
-                child: Text('ノート'),
-                onTap: () {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) {
-                    return NoteListPage();
-                  }));
-                },
-              ),
-            ),
-            ListTile(
-              title: GestureDetector(
-                child: Text('CD'),
-                onTap: () {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) {
-                    return CDListPage();
-                  }));
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: widget.scaffoldBody,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.create),
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) {
-              return NoteCreatePage();
-            }),
-          );
-        },
-      ),
-    );
-  }
-}
 
 class ImageViewPage extends StatelessWidget {
   final String strImageUrl;
@@ -113,7 +26,7 @@ class ImageViewPage extends StatelessWidget {
   }
 }
 
-List<Map<String, dynamic>> getMainPageConfig(BuildContext context, FirebaseFirestore firestore) => [
+List<Map<String, dynamic>> getMainPageConfig(BuildContext context, FirebaseFirestore firestore, FirebaseStorage firebaseStorage) => [
       {
         'pageIndex': 0,
         'pageName': 'ノート',
@@ -125,7 +38,7 @@ List<Map<String, dynamic>> getMainPageConfig(BuildContext context, FirebaseFires
         'pageIndex': 1,
         'pageName': 'CD',
         'pageIcon': Icons.library_music,
-        'pageWidget': CDListPage(),
+        'pageWidget': CDListPage(firestore: firestore, firebaseStorage: firebaseStorage,),
         'appBarActions': [],
       },
       {
