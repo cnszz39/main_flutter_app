@@ -13,12 +13,12 @@ class NoteDetailPage extends StatelessWidget {
       body: currentNote != null
           ? ListView(
               children: [
-                // ListTile(
-                //   title: Text(currentNote.title),
-                // ),
-                // ListTile(
-                //   title: Text(currentNote.content),
-                // ),
+                ListTile(
+                  title: Text(currentNote.title),
+                ),
+                ListTile(
+                  title: Text(currentNote.content),
+                ),
               ],
             )
           : Center(),

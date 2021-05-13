@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:main_flutter_app/pages/all_pages.dart';
 import 'package:main_flutter_app/pages/search_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,7 +13,6 @@ FirebaseFirestore firestore;
 FirebaseAuth firebaseAuth;
 FirebaseStorage firebaseStorage;
 
-User currentUser;
 Future<SharedPreferences> prefs;
 
 Future<void> main() async {
@@ -23,10 +23,10 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-  int pageIndex = 2;
+  int pageIndex = 0;
   bool isOpenDrawer = false;
   bool isNavigationRailExtended = true;
-
+  User currentUser;
   MyAppState createState() => new MyAppState();
 }
 
@@ -36,19 +36,26 @@ class MyAppState extends State<MyApp> {
     super.initState();
 
     firebaseAuth = FirebaseAuth.instance;
+    firebaseAuth.authStateChanges().listen((User user) {
+      if (user != null) {
+        setState(() {
+          widget.currentUser = user;
+        });
+      }
+    });
     firestore = FirebaseFirestore.instance;
     firebaseStorage = FirebaseStorage.instance;
-    // currentUser = firebaseAuth.currentUser;
   }
 
   @override
   Widget build(BuildContext context) {
-    currentUser = firebaseAuth.currentUser;
 
     List<Map<String, dynamic>> mainPages =
         getMainPageConfig(context, firestore, firebaseStorage);
+
     PageController _pageController =
         new PageController(initialPage: widget.pageIndex);
+
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
@@ -61,7 +68,13 @@ class MyAppState extends State<MyApp> {
           bool isMobileDevice = deviceSize.width <= 600;
 
           List<Widget> drawerItems = [
-            createDrawerHeader(context, this, currentUser)
+            createDrawerHeader(context, this, widget.currentUser),
+            ListTile(title: Text('ログアウト'),onTap: () {
+              firebaseAuth.signOut();
+              setState(() {
+                widget.currentUser = null;
+              });
+            },),
           ];
           drawerItems.addAll(mainPages
               .map(
@@ -125,7 +138,7 @@ class MyAppState extends State<MyApp> {
                 : Row(
                     children: [
                       NavigationRail(
-                        leading: createDrawerHeader(context, this, currentUser),
+                        leading: createDrawerHeader(context, this, widget.currentUser),
                         backgroundColor: Colors.grey[50],
                         extended: widget.isNavigationRailExtended,
                         elevation: 3.0,
@@ -174,38 +187,61 @@ DrawerHeader createDrawerHeader(
         Align(
           alignment: Alignment.topLeft,
           child: currentUser != null
-              ? Image.network(currentUser.photoURL)
+              ? Image.network(currentUser.photoURL != null ? currentUser.photoURL: 'https://firebasestorage.googleapis.com/v0/b/mainflutterproject.appspot.com/o/cd_jackets%2Fjacket_sc_0004.jpg?alt=media&token=91986472-7b84-40e6-9079-ac54be8ef3e9')
               : IconButton(
                   icon: Icon(Icons.person),
-                  onPressed: () {
-                    showLoginDialog(context);
-                  }),
+                  onPressed: () async {
+                    // showLoginDialog(context, firebaseAuth);
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return LoginPage(
+                            firebaseAuth: firebaseAuth,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     ),
   );
 }
 
-void showLoginDialog(BuildContext context) {
+void showLoginDialog(BuildContext context, FirebaseAuth firebaseAuth) {
+  TextEditingController mailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return SimpleDialog(
         title: Text('ログイン'),
         children: [
-          ElevatedButton(
-              onPressed: () {
-                GoogleAuthProvider googleAuthProvider =
-                    new GoogleAuthProvider();
-                googleAuthProvider.addScope(
-                    'https://www.googleapis.com/auth/contacts.readonly');
-                firebaseAuth
-                    .signInWithPopup(googleAuthProvider)
-                    .then((value) => {print(value.toString())})
-                    .onError((error, stackTrace) =>
-                        {print('Login error, ${error.toString()}')});
-              },
-              child: Text('login')),
+          TextField(
+            controller: mailController,
+          ),
+          TextField(
+            controller: passwordController,
+          ),
+          MaterialButton(child: Text('signin'), onPressed: () {}),
+          MaterialButton(
+            child: Text('login'),
+            onPressed: () {
+              Future<UserCredential> result =
+                  firebaseAuth.signInWithEmailAndPassword(
+                email: mailController.text,
+                password: passwordController.text,
+              );
+              print(
+                result.then(
+                  (value) => {print(value.user.uid)},
+                ),
+              );
+            },
+          ),
         ],
       );
     },

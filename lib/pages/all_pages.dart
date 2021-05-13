@@ -11,3 +11,5 @@ export 'note/note_create_page.dart';
 
 export 'search_view.dart';
 export 'setting_page.dart';
+
+export 'login_page.dart';
