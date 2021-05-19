@@ -27,6 +27,7 @@ class MyApp extends StatefulWidget {
   bool isOpenDrawer = false;
   bool isNavigationRailExtended = true;
   User currentUser;
+
   MyAppState createState() => new MyAppState();
 }
 
@@ -47,9 +48,14 @@ class MyAppState extends State<MyApp> {
     firebaseStorage = FirebaseStorage.instance;
   }
 
+  updateCurrentUser() {
+    setState(() {
+      widget.currentUser = firebaseAuth.currentUser;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-
     List<Map<String, dynamic>> mainPages =
         getMainPageConfig(context, firestore, firebaseStorage);
 
@@ -69,12 +75,15 @@ class MyAppState extends State<MyApp> {
 
           List<Widget> drawerItems = [
             createDrawerHeader(context, this, widget.currentUser),
-            ListTile(title: Text('ログアウト'),onTap: () {
-              firebaseAuth.signOut();
-              setState(() {
-                widget.currentUser = null;
-              });
-            },),
+            ListTile(
+              title: Text('ログアウト'),
+              onTap: () {
+                firebaseAuth.signOut();
+                setState(() {
+                  widget.currentUser = null;
+                });
+              },
+            ),
           ];
           drawerItems.addAll(mainPages
               .map(
@@ -138,7 +147,8 @@ class MyAppState extends State<MyApp> {
                 : Row(
                     children: [
                       NavigationRail(
-                        leading: createDrawerHeader(context, this, widget.currentUser),
+                        leading: createDrawerHeader(
+                            context, this, widget.currentUser),
                         backgroundColor: Colors.grey[50],
                         extended: widget.isNavigationRailExtended,
                         elevation: 3.0,
@@ -187,11 +197,31 @@ DrawerHeader createDrawerHeader(
         Align(
           alignment: Alignment.topLeft,
           child: currentUser != null
-              ? Image.network(currentUser.photoURL != null ? currentUser.photoURL: 'https://firebasestorage.googleapis.com/v0/b/mainflutterproject.appspot.com/o/cd_jackets%2Fjacket_sc_0004.jpg?alt=media&token=91986472-7b84-40e6-9079-ac54be8ef3e9')
+              ? GestureDetector(
+                  child: Image.network(
+                    currentUser.photoURL != null
+                        ? currentUser.photoURL
+                        : 'https://firebasestorage.googleapis.com/v0/b/mainflutterproject.appspot.com/o/cd_jackets%2Fjacket_sc_0004.jpg?alt=media&token=91986472-7b84-40e6-9079-ac54be8ef3e9',
+                  ),
+                  onTap: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(
+                      builder: (BuildContext context) => AccountPage(
+                        firebaseAuth: firebaseAuth,
+                      ),
+                    ))
+                        .then(
+                      (value) {
+                        parent.setState(() {
+                          parent.widget.currentUser = firebaseAuth.currentUser;
+                        });
+                      },
+                    );
+                  },
+                )
               : IconButton(
                   icon: Icon(Icons.person),
                   onPressed: () async {
-                    // showLoginDialog(context, firebaseAuth);
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -207,43 +237,5 @@ DrawerHeader createDrawerHeader(
         ),
       ],
     ),
-  );
-}
-
-void showLoginDialog(BuildContext context, FirebaseAuth firebaseAuth) {
-  TextEditingController mailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return SimpleDialog(
-        title: Text('ログイン'),
-        children: [
-          TextField(
-            controller: mailController,
-          ),
-          TextField(
-            controller: passwordController,
-          ),
-          MaterialButton(child: Text('signin'), onPressed: () {}),
-          MaterialButton(
-            child: Text('login'),
-            onPressed: () {
-              Future<UserCredential> result =
-                  firebaseAuth.signInWithEmailAndPassword(
-                email: mailController.text,
-                password: passwordController.text,
-              );
-              print(
-                result.then(
-                  (value) => {print(value.user.uid)},
-                ),
-              );
-            },
-          ),
-        ],
-      );
-    },
   );
 }

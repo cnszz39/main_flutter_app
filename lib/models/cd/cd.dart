@@ -35,8 +35,8 @@ class CD {
     this.description = map['description'];
     this.releaseDate = (map['release_date'] as Timestamp).toDate();
     this.price = (map['price'] as int).toDouble();
-    jacketImageReference
-        .getDownloadURL()
-        .then((value) => this.jacketImageUrl = value);
+    // jacketImageReference
+    //     .getDownloadURL()
+    //     .then((value) => this.jacketImageUrl = value);
   }
 }

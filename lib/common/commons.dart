@@ -26,19 +26,26 @@ class ImageViewPage extends StatelessWidget {
   }
 }
 
-List<Map<String, dynamic>> getMainPageConfig(BuildContext context, FirebaseFirestore firestore, FirebaseStorage firebaseStorage) => [
+List<Map<String, dynamic>> getMainPageConfig(BuildContext context,
+        FirebaseFirestore firestore, FirebaseStorage firebaseStorage) =>
+    [
       {
         'pageIndex': 0,
         'pageName': 'ノート',
         'pageIcon': Icons.note,
-        'pageWidget': NoteListPage(firestore: firestore,),
+        'pageWidget': NoteListPage(
+          firestore: firestore,
+        ),
         'appBarActions': [],
       },
       {
         'pageIndex': 1,
         'pageName': 'CD',
         'pageIcon': Icons.library_music,
-        'pageWidget': CDListPage(firestore: firestore, firebaseStorage: firebaseStorage,),
+        'pageWidget': CDListPage(
+          firestore: firestore,
+          firebaseStorage: firebaseStorage,
+        ),
         'appBarActions': [],
       },
       {
@@ -64,6 +71,7 @@ class GameMenuItem {
     this.isExpanded,
     this.games,
   });
+
   String title;
   String expandedValue;
   bool isExpanded;
@@ -76,6 +84,7 @@ class GameItem {
     this.gameTitle,
     this.gameDescription,
   });
+
   Image gameJacket;
   String gameTitle;
   String gameDescription;

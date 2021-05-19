@@ -36,11 +36,13 @@ class NoteCreatePage extends StatelessWidget {
                               .collection('notes')
                               .doc(value.id)
                               .get()
-                              .then((value) => newNote =
-                                  Note.fromMap(value.data(), value.id));
+                              .then(
+                                (value) => newNote =
+                                    Note.fromMap(value.data(), value.id),
+                              );
                           return NoteDetailPage(
                             currentNote: newNote,
-                            isMobileDevice: false,
+                            firestore: fireStore,
                           );
                         }))
                       })

@@ -11,5 +11,8 @@ export 'note/note_create_page.dart';
 
 export 'search_view.dart';
 export 'setting_page.dart';
+export 'home_page.dart';
 
-export 'login_page.dart';
+export 'account/login_page.dart';
+export 'account/account_page.dart';
+export 'account/account_collection_page.dart';
