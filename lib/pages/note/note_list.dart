@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:main_flutter_app/common/responsive_page.dart';
 import 'package:main_flutter_app/models/note/note.dart';
-import 'note_create_page.dart';
-import 'note_detail_detail.dart';
+import 'package:main_flutter_app/pages/all_pages.dart';
 
+// ignore: must_be_immutable
 class NoteListPage extends StatefulWidget {
   bool isOpenNoteDetail = false;
   Note currentNote = Note();
@@ -18,36 +18,37 @@ class NoteListPage extends StatefulWidget {
   _NoteListPageState createState() => new _NoteListPageState();
 }
 
-class _NoteListPageState extends State<NoteListPage> with TickerProviderStateMixin{
+class _NoteListPageState extends State<NoteListPage>
+    with TickerProviderStateMixin {
   Future<QuerySnapshot> noteQuerySnapshot;
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     var noteQuerySnapshot = Note().getNotes(widget.firestore);
 
-    final AnimationController _controller = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat(reverse: true);
-    final Animation<double> _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.fastOutSlowIn,
-    );
-
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.create),
+        child: Icon(Icons.add),
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (BuildContext context) => NoteCreatePage(),
+              builder: (BuildContext context) => NoteDetailPage(
+                currentNote: null,
+                firestore: widget.firestore,
+              ),
             ),
           );
         },
       ),
       body: FutureBuilder(
         future: noteQuerySnapshot,
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        builder: (BuildContext futureContext,
+            AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) return Container();
 
           return ResponsivePage(
@@ -55,43 +56,6 @@ class _NoteListPageState extends State<NoteListPage> with TickerProviderStateMix
             tabletPage: _tabletPage(snapshot.data.docs),
             desktopPage: _desktopPage(snapshot.data.docs),
           );
-
-          // return LayoutBuilder(
-          //     builder: (BuildContext context, BoxConstraints constraints) {
-          //   if (constraints.maxWidth <= 600) {
-          //   } else {
-          //     List<Widget> widgetsForWebDevice = [];
-          //     widgetsForWebDevice.add(
-          //       SizedBox(
-          //         width: widget.isOpenNoteDetail ? 400 : constraints.maxWidth,
-          //         child: RefreshIndicator(
-          //           child: ListView(
-          //             children: snapshot.data.docs
-          //                 .map((e) => _noteCardItem(Note.fromMap(e.data(), e.id)))
-          //                 .toList(),
-          //           ),
-          //           onRefresh: onRefreshNoteList,
-          //         ),
-          //       ),
-          //     );
-          //     if (widget.isOpenNoteDetail) {
-          //       widgetsForWebDevice.add(
-          //         Expanded(
-          //           child: NoteDetailPage(
-          //             currentNote: Note.fromMap(
-          //                 snapshot.data.docs[widget.currentNoteIndex].data(),
-          //                 snapshot.data.docs[widget.currentNoteIndex].id),
-          //             isMobileDevice: constraints.maxWidth <= 600,
-          //           ),
-          //         ),
-          //       );
-          //     }
-          //
-          //     return Row(
-          //       children: widgetsForWebDevice,
-          //     );
-          //   }
-          // });
         },
       ),
     );
@@ -116,63 +80,34 @@ class _NoteListPageState extends State<NoteListPage> with TickerProviderStateMix
           ),
           trailing: Text('creator'),
           onTap: () {
-            Navigator.of(context).push(
-              // MaterialPageRoute(
-              //   builder: (BuildContext context) {
-              //     return NoteDetailPage(
-              //       currentNote: currentNote,
-              //     );
-              //   },
-              // ),
-              PageRouteBuilder(
-                pageBuilder: (BuildContext context, Animation<double> animation,
-                    Animation<double> secondaryAnimation) {
-                  var begin = Offset(0.0, 1.0);
-                  var end = Offset.zero;
-                  var curve = Curves.ease;
+            setState(() {
+              widget.isOpenNoteDetail = !widget.isOpenNoteDetail;
+              widget.currentNote = currentNote;
+            });
+            if (ResponsivePage.isMobile(context)) {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation) {
+                    var begin = Offset(0.0, 1.0);
+                    var end = Offset.zero;
+                    var curve = Curves.ease;
 
-                  var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                  return SlideTransition(
-                    position: animation.drive(tween),
-                    child: NoteDetailPage(
-                      currentNote: currentNote,
-                      firestore: widget.firestore,
-                    ),
-                  );
-                },
-              ),
-            );
+                    var tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: NoteDetailPage(
+                        currentNote: currentNote,
+                        firestore: widget.firestore,
+                      ),
+                    );
+                  },
+                ),
+              );
+            }
           },
-          // onTap: () {
-          //   if (isMobileDevice) {
-          //     Navigator.of(context).push(
-          //       MaterialPageRoute(
-          //         builder: (BuildContext context) {
-          //           return NoteDetailPage(
-          //             currentNote: Note.fromMap(
-          //                 snapshot.data.docs[i].data(),
-          //                 snapshot.data.docs[i].id),
-          //             isMobileDevice: isMobileDevice,
-          //           );
-          //         },
-          //       ),
-          //     );
-          //   } else {
-          //     setState(() {
-          //       widget.currentNote = Note.fromMap(
-          //         snapshot.data.docs[i].data(),
-          //         snapshot.data.docs[i].id,
-          //       );
-          //
-          //       if (i == widget.currentNoteIndex) {
-          //         widget.isOpenNoteDetail = !widget.isOpenNoteDetail;
-          //       } else {
-          //         widget.isOpenNoteDetail = true;
-          //       }
-          //       widget.currentNoteIndex = i;
-          //     });
-          //   }
-          // },
         ),
       );
 
@@ -185,21 +120,73 @@ class _NoteListPageState extends State<NoteListPage> with TickerProviderStateMix
         onRefresh: onRefreshNoteList,
       );
 
-  Widget _tabletPage(List<QueryDocumentSnapshot> noteDocs) => RefreshIndicator(
-        child: ListView(
-          children: noteDocs
-              .map((e) => _noteCardItem(Note.fromMap(e.data(), e.id)))
-              .toList(),
-        ),
-        onRefresh: onRefreshNoteList,
-      );
+  Widget _tabletPage(List<QueryDocumentSnapshot> noteDocs) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        List<Widget> desktopPageWidgets = [];
+        desktopPageWidgets.add(
+          SizedBox(
+            width: widget.isOpenNoteDetail ? 300 : constraints.maxWidth,
+            child: RefreshIndicator(
+              child: ListView(
+                children: noteDocs
+                    .map((e) => _noteCardItem(Note.fromMap(e.data(), e.id)))
+                    .toList(),
+              ),
+              onRefresh: onRefreshNoteList,
+            ),
+          ),
+        );
 
-  Widget _desktopPage(List<QueryDocumentSnapshot> noteDocs) => RefreshIndicator(
-        child: ListView(
-          children: noteDocs
-              .map((e) => _noteCardItem(Note.fromMap(e.data(), e.id)))
-              .toList(),
-        ),
-        onRefresh: onRefreshNoteList,
-      );
+        if (widget.isOpenNoteDetail) {
+          desktopPageWidgets.add(
+            Expanded(
+              child: NoteDetailPage(
+                currentNote: widget.currentNote,
+              ),
+            ),
+          );
+        }
+
+        return Row(
+          children: desktopPageWidgets,
+        );
+      },
+    );
+  }
+
+  Widget _desktopPage(List<QueryDocumentSnapshot> noteDocs) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        List<Widget> desktopPageWidgets = [];
+        desktopPageWidgets.add(
+          SizedBox(
+            width: widget.isOpenNoteDetail ? 400 : constraints.maxWidth,
+            child: RefreshIndicator(
+              child: ListView(
+                children: noteDocs
+                    .map((e) => _noteCardItem(Note.fromMap(e.data(), e.id)))
+                    .toList(),
+              ),
+              onRefresh: onRefreshNoteList,
+            ),
+          ),
+        );
+
+        if (widget.isOpenNoteDetail) {
+          desktopPageWidgets.add(
+            Expanded(
+              child: NoteDetailPage(
+                currentNote: widget.currentNote,
+              ),
+            ),
+          );
+        }
+
+        return Row(
+          children: desktopPageWidgets,
+        );
+      },
+    );
+  }
 }

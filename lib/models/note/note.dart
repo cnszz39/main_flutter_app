@@ -31,4 +31,12 @@ class Note {
         .where('title', isNotEqualTo: '')
         .get();
   }
+
+  Future<QuerySnapshot> getNote(
+      FirebaseFirestore firestore, String noteId) async {
+    return await firestore
+        .collection('notes')
+        .where('id', isEqualTo: noteId)
+        .get();
+  }
 }
