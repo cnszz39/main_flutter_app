@@ -123,7 +123,7 @@ class MyAppState extends State<MyApp> {
                     tag: 'search_view',
                   ),
                   onPressed: () {
-                    showSearch(context: context, delegate: SearchView());
+                    showSearch(context: context, delegate: SearchView(firestore: firestore));
                   },
                 )
               ],
